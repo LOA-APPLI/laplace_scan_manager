@@ -53,11 +53,11 @@ class ScanManager(QObject):
 
             # define the functions used by the server on specific messages. 
                 
-                # when the CMD_SAVE is received, emit a signal to change the saving path
+            # when the CMD_SAVE is received, emit a signal to change the saving path
             self.serv.set_on_saving_path_changed(
                 self.server_controller.on_saving_path_changed
             )
-                # when CMD_SCAN is received, emit signal to update the scanner
+            # when CMD_SCAN is received, emit signal to update the scanner
             self.serv.set_on_scan(
                 self.server_controller.on_scan
             )
@@ -73,6 +73,10 @@ class ScanManager(QObject):
             self.serv.set_on_update_actuator_positions(
                 self.server_controller.on_new_actuator_pos_received
             )
+
+            self.server_controller.scan_received.connect(
+                self._scan_received
+            )
            
 
             self.serv.start() # start the server
@@ -85,6 +89,9 @@ class ScanManager(QObject):
         else:                # else means server off
             self.serv.stop() # stop the server
             log.info("Server stopped.")
+
+    def _scan_received(self, data: dict)->None:
+        log.info(f'Scan data received: {data}')
 
     def configure_actuators(self) -> None:
         '''
