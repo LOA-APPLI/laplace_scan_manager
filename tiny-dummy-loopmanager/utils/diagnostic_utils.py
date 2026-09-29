@@ -16,8 +16,6 @@ def format_plottable_data_dict(data: dict):
 
 
 
-
-
 if __name__ == "__main__":
     dictionary =  {'tcp://147.250.140.85:5556': 
                    {'name': 'dummy_camera', 'data': 
