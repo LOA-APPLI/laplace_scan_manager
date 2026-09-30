@@ -8,6 +8,7 @@ from laplace_server.server_controller import ServerController
 from laplace_log import log
 
 # project
+from ..core.data.experimentalData import ExperimentalData
 from ..utils.config_helper import get_from_config
 
 class ScanManager(QObject):
@@ -21,6 +22,7 @@ class ScanManager(QObject):
         super().__init__()
 
         self.server_controller = ServerController()
+        self.experimental_data = ExperimentalData()
   
     def server_launch(self, server_state: bool) -> None:
         '''
@@ -91,7 +93,8 @@ class ScanManager(QObject):
             log.info("Server stopped.")
 
     def _scan_received(self, data: dict)->None:
-        log.info(f'Scan data received: {data}')
+        self.experimental_data.add_shot(master_raw_data=data)
+        
 
     def configure_actuators(self) -> None:
         '''
