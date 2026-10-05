@@ -6,6 +6,7 @@ class Shot:
         self.motors = {}  # rack_address -> {index: MotorInfo}
         self.shot_number = shot_number
         self._raw_master_data = None
+        self.moving = False
 
     def __repr__(self):
         rack_count = len(self.motors)
@@ -108,7 +109,7 @@ class Shot:
     def _verify_shot_congruence(shot_numbers: dict) -> tuple[int, bool]:
         """
         Check if all shot numbers match.
-        Returns (shot number, True) if consistent, (shot number from master, True) if mismatched.
+        Returns (shot number, True) if consistent, (shot number from master, False) if mismatched.
         """
         if not shot_numbers:
             return None
@@ -156,7 +157,11 @@ class Shot:
             log.info(f"Found {len(actuators)} actuators")
             log.info(f'Actuator(s): {actuators}')
             
-            for actuator in actuators:
+            for address, status in actuators:
+                if not self.moving:
+                    self.moving = status['moving']
+                    
+
                 # Extract shot number per actuator for secondary verification
                 #actuator_shot = actuator.get('shot_number')
                 pass
@@ -168,6 +173,9 @@ class Shot:
             log.info("No actuators in results")
         except Exception as e:
             log.error(f"Error parsing actuators: {e}")
+
+    def _store_motor(self, address: str, motors: list, ):
+        pass
     
     def _parse_outputs(self, results: dict) -> None:
         """Parse diagnostic outputs from results."""
