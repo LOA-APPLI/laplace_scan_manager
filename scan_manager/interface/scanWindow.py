@@ -14,7 +14,7 @@ from .panels import (
     ExecutionPanel, ActuatorsPanel, DiagnosticsPanel, ScanPanel
 )
 from ..core.scanManager import ScanManager
-
+from ..plots.plotManager import PlotManager
 from ..utils.diagnostic_utils import format_plottable_data_dict
 
 
@@ -24,7 +24,9 @@ class ScanWindow(QMainWindow):
 
         super().__init__() # heritage from QMainWindow
 
-        self.scan_manager = ScanManager()  # class managing the scan
+        self.scan_manager = ScanManager()  # class managing the scan    
+        self.plot_manager = PlotManager()
+
         self.set_up()  # build the window panels and buttons
         self.actions() # defines the actions of the window
         self.actuators = dict({})
@@ -69,38 +71,33 @@ class ScanWindow(QMainWindow):
         self.scan_panel = ScanPanel()
         main_layout.addWidget(self.scan_panel)
 
-
         # Block 5: Start and Stop buttons
         bottom_layout = QHBoxLayout()
 
         bottom_layout.addStretch()
-        self.step_label = QLabel("Step: -/-")
-        self.step_label.setStyleSheet("font-weight: bold;")
-        bottom_layout.addWidget(self.step_label)
-        # state label
+
+
+
+        # Plot Window
+        self.open_plots = QPushButton("Plot Manager")
+        self.open_plots.setFixedWidth(250)
+        bottom_layout.addWidget(self.open_plots)
+
+                # state label
         self.status_label = QLabel("🟢 Ready")
         self.status_label.setStyleSheet("font-weight: bold;")
         bottom_layout.addWidget(self.status_label)
-        # Stop
-        self.stop_button = QPushButton("Stop")
-        self.stop_button.setFixedWidth(120)
-        bottom_layout.addWidget(self.stop_button)
-            # Start
-        self.start_button = QPushButton("Start")
-        self.start_button.setFixedWidth(120)
-        bottom_layout.addWidget(self.start_button)
 
         main_layout.addLayout(bottom_layout)
-
+        
     
     def actions(self) -> None:
         '''
         Defines the actions between the several panels and
-        make the bridget with the loop manager.
+        make the bridge with the loop manager.
         '''
         # Start and Stop buttons
-        self.start_button.clicked.connect(self.on_start)
-        self.stop_button.clicked.connect(self.on_stop)
+
         self.execution_panel.server_state_changed.connect(
             self.scan_manager.server_launch
         )
@@ -125,6 +122,16 @@ class ScanWindow(QMainWindow):
         self.scan_manager.on_diagnostics_dict_received.connect(
             self.update_diagnostics
         )
+
+        self.open_plots.clicked.connect(
+            self.on_plot_manager
+        )
+
+    def on_plot_manager(self) -> None:
+        log.debug("Plot manager clicked.")
+        self.plot_manager.setVisible(not self.plot_manager.isVisible())
+
+
 
     def update_actuators(self, actuators_dict: dict) -> None:
 
@@ -179,37 +186,7 @@ class ScanWindow(QMainWindow):
     def load_scan_from_actuators(self)->None:
         scan_config = self.actuators_panel.get_all_actuators_config()
         self.scan_panel.load_scan_config(scan_config)
-
-
-    def on_start(self) -> None:
-        '''
-        Function used when 'start_button' is pressed. Create a 
-        config dictionary gathering the panel informations and 
-        transmit it to the loop manager.
-
-        Check if the panel informations are sufficient to continue,
-        raise error and warning message box if needed.
-        '''
-        log.debug("Start button pressed.")
-
-        # gather the panel informations
-        execution = self.execution_panel.get_execution()
-
-
-
-        log.info("Starting scan")
-        self.set_loop_state(True)
-
-
-
-    def on_stop(self) -> None:
-        '''
-        Function used when 'stop_button' is pressed.
-        '''
-        log.debug("Stop button pressed.")
-
-        self.set_loop_state(False)
-    
+   
 
     def on_max_iteration_reached(self) -> None:
         '''

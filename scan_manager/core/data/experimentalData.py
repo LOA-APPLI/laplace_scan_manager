@@ -25,9 +25,9 @@ class ExperimentalData:
 
         rows = []
 
-        # -----------------
-        # Actuators
-        # -----------------
+        # ----------------------------------
+        #           Actuators
+        # ----------------------------------
         for address, actuator in shot.actuators.items():
             shot_num = actuator.get("shot_number")
             timestamp = None
@@ -44,9 +44,9 @@ class ExperimentalData:
                     "value": motor.get("position"),
                 })
 
-        # -----------------
-        # Diagnostics
-        # -----------------
+        # ----------------------------------
+        #           Diagnostics
+        # ----------------------------------
         for address, diagnostic in shot.diagnostics.items():
             shot_num = diagnostic.get("shot_number")
             timestamp = diagnostic.get("time")
@@ -74,7 +74,7 @@ class ExperimentalData:
                     "value": value,
                 })
 
-        # Append new rows to the main DataFrame
+
         if rows:
             self.dataframe = pd.concat(
                 [self.dataframe, pd.DataFrame(rows)],
@@ -82,8 +82,7 @@ class ExperimentalData:
             )
 
 
-    def plot(self, plot_config: dict)->dict:
-        pass
+
 
     def save_all_data(self)-> None:
         pass

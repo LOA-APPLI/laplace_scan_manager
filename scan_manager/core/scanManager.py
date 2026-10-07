@@ -1,5 +1,6 @@
 # libraries
 from PyQt6.QtCore import pyqtSignal, QObject
+from pandas import DataFrame
 
 from laplace_server.server_lhc import ServerLHC
 from laplace_server.protocol import DEVICE_SCAN
@@ -16,6 +17,7 @@ class ScanManager(QObject):
     on_actuators_dict_received = pyqtSignal(dict) 
     on_actuators_position_update_received = pyqtSignal(dict) 
     on_diagnostics_dict_received = pyqtSignal(dict) 
+    on_scan_DataFrame = pyqtSignal(DataFrame)
 
     
     def __init__(self):
@@ -95,6 +97,7 @@ class ScanManager(QObject):
     def _scan_received(self, data: dict)->None:
         self.experimental_data.add_shot(master_raw_data=data)
         log.info(f'Experimental data frame: {self.experimental_data.dataframe}')
+        self.on_scan_DataFrame.emit(self.experimental_data.dataframe)
         
 
     def configure_actuators(self) -> None:
