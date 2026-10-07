@@ -145,7 +145,7 @@ class ScanWindow(QMainWindow):
 
                 else:
                     self.actuators[address] = status
-                    log.info(f'Motor status at {address} in scan window: {status}')
+                    log.debug(f'Motor status at {address} in scan window: {status}')
                     self.actuators_panel.add_actuator_widgets_from_status(
                         address, status
                     )

@@ -3,14 +3,15 @@ from laplace_log import log
 
 class Shot:
     def __init__(self, shot_number: int):
-        self.motors = {}  # rack_address -> {index: MotorInfo}
+        self.actuators = {}  
+        self.diagnostics = {}
         self.shot_number = shot_number
         self._raw_master_data = None
         self.moving = False
 
     def __repr__(self):
-        rack_count = len(self.motors)
-        total_motors = sum(len(indices) for indices in self.motors.values())
+        rack_count = len(self.actuators)
+        total_motors = sum(len(indices) for indices in self.actuators.values())
         
         # Get diagnostic count (assuming stored somewhere, e.g., self.diagnostics)
         diag_count = getattr(self, 'diagnostics', None)
@@ -34,7 +35,7 @@ class Shot:
         """
         # Step 1: Extract all shot numbers from devices
         device_shot_numbers = cls._collect_device_shot_numbers(master_data)
-        log.info(f'device_shot_numbers: {device_shot_numbers}')
+        log.debug(f'device_shot_numbers: {device_shot_numbers}')
 
         # Step 2: Verify congruence across devices
         try:
@@ -76,7 +77,6 @@ class Shot:
         # Safely navigate to the payload data
         try:
             data = master_data.get('payload', {}).get('data', {}).get('results', {})
-            log.info(f'results dict: {data}')
         except (AttributeError, TypeError):
             return result
         
@@ -123,6 +123,7 @@ class Shot:
                     continue
                 else: 
                     return (shot_numbers['_master'], False)
+        log.info(f'Shot number congruence test passed')
         return (shot_numbers['_master'], True)
 
 
@@ -153,42 +154,27 @@ class Shot:
     def _parse_actuators(self, results: dict) -> None:
         """Parse actuator/motor information from results."""
         try:
-            actuators = results['actuators']
-            log.info(f"Found {len(actuators)} actuators")
-            log.info(f'Actuator(s): {actuators}')
+            self.actuators = results['actuators']
+            log.debug(f'Actuator(s): {self.actuators}')
             
-            for address, status in actuators:
+            for status in self.actuators.values():
                 if not self.moving:
                     self.moving = status['moving']
-                    
 
-                # Extract shot number per actuator for secondary verification
-                #actuator_shot = actuator.get('shot_number')
-                pass
-                
-                # TODO: Store motor data based on rack_address and index
-                # self._store_motor(actuator)
-                
+                                                
         except KeyError:
             log.info("No actuators in results")
         except Exception as e:
             log.error(f"Error parsing actuators: {e}")
-
-    def _store_motor(self, address: str, motors: list, ):
-        pass
     
     def _parse_outputs(self, results: dict) -> None:
         """Parse diagnostic outputs from results."""
         try:
-            diagnostics = results['outputs']
-            log.info(f"Found {len(diagnostics)} diagnostics")
-            
-            # Process diagnostics as needed
-            for name, data in diagnostics.items():
-                # self._store_diagnostic(name, data)
-                pass
-                
+            self.diagnostics = results['outputs']
+            log.debug(f"Found diagnostics: {self.diagnostics}")
+                           
         except KeyError:
             log.info("No outputs in results")
         except Exception as e:
             log.error(f"Error parsing outputs: {e}")
+

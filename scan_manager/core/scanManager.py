@@ -94,6 +94,7 @@ class ScanManager(QObject):
 
     def _scan_received(self, data: dict)->None:
         self.experimental_data.add_shot(master_raw_data=data)
+        log.info(f'Experimental data frame: {self.experimental_data.dataframe}')
         
 
     def configure_actuators(self) -> None:
@@ -126,12 +127,10 @@ class ScanManager(QObject):
         self.server_controller.set_diagnostics_dict_received.connect(
             self.on_diagnostics_dict_received
         ) 
-
-
-    
+   
 
     def start_scan(self, scan_settings: dict) -> None:
-        log.info(f'Starting scan with settings: {scan_settings}')
+        log.debug(f'Starting scan with settings: {scan_settings}')
         self.serv.set_data(scan_settings)
 
     def stop_scan(self):
