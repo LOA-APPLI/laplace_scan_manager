@@ -20,8 +20,8 @@ class PlotManager(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.available_actuators = {}
-        self.available_diagnostics = {}
+        self.available_actuators = []
+        self.available_diagnostics = []
         self.plots = {}     
         self.set_up()     
 
@@ -69,14 +69,19 @@ class PlotManager(QMainWindow):
         panel_layout.addWidget(plot_config)  # add the widget list to the layout
 
     def update_interface(self, actuators: dict, diagnostics: dict):
-        self.available_actuators = actuators
-        self.available_diagnostics = diagnostics
 
-        for address, status in self.available_actuators.items() :
-            print(f'Actuators at {address} in Plot Manager: {status}')
-            
+        for address, status in actuators.items() :
+            for motor in status['motors']: 
+                motor_dict = {'address': address,'name': motor['name']} 
+                if motor_dict not in self.available_actuators:             
+                    self.available_actuators.append(motor_dict)
 
-        for address, status in self.available_diagnostics.items():
-            print(f'Diagnostics at {address}in Plot Manager: {status}')
+        for address, status in diagnostics.items():     
+            for plottable in status['plottables_list']:
+                plottable_dict = {'address': address, 'name': plottable}
+                if plottable_dict not in self.available_diagnostics:
+                    self.available_diagnostics.append(plottable_dict)
+
+        log.info(f'Available actuators: {self.available_actuators}, diags: {self.available_diagnostics}')
 
 
