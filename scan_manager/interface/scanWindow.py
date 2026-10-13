@@ -1,6 +1,7 @@
 # libraries
 import pathlib
 
+from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, 
     QHBoxLayout, QPushButton, QMessageBox, QLabel
@@ -32,6 +33,9 @@ class ScanWindow(QMainWindow):
         self.actuators = dict({})
         self.diagnostics = dict({})
 
+        self.plot_timer = QTimer()
+        self.plot_timer.timeout.connect(self.update_plot_manager)
+        self.plot_timer.start(5000)
 
 
     def set_up(self) -> None:
@@ -139,9 +143,7 @@ class ScanWindow(QMainWindow):
         removed_addresses = set(self.actuators) - set(actuators_dict)
 
         for address in removed_addresses:
-
             self.actuators_panel.update_actuators_unavailable(address)
-
 
         # 2. Add new servers and update existing ones
         try  :
@@ -186,6 +188,9 @@ class ScanWindow(QMainWindow):
     def load_scan_from_actuators(self)->None:
         scan_config = self.actuators_panel.get_all_actuators_config()
         self.scan_panel.load_scan_config(scan_config)
+
+    def update_plot_manager(self) -> None:
+        self.plot_manager.update_interface(self.actuators, self.diagnostics)
    
 
     def on_max_iteration_reached(self) -> None:
