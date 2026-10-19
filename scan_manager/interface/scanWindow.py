@@ -1,5 +1,6 @@
 # libraries
 import pathlib
+import pandas as pd
 
 from PyQt6.QtCore import QTimer
 from PyQt6.QtWidgets import (
@@ -130,6 +131,13 @@ class ScanWindow(QMainWindow):
         self.open_plots.clicked.connect(
             self.on_plot_manager
         )
+
+        self.scan_manager.on_scan_DataFrame.connect(
+            self.on_new_dataframe
+        )
+
+    def on_new_dataframe(self, df: pd.DataFrame):
+        self.plot_manager.update_data(df)
 
     def on_plot_manager(self) -> None:
         log.debug("Plot manager clicked.")
