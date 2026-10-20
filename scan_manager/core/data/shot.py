@@ -1,6 +1,5 @@
 from laplace_log import log
 
-
 class Shot:
     def __init__(self, shot_number: int):
         self.actuators = {}  
@@ -177,4 +176,33 @@ class Shot:
             log.info("No outputs in results")
         except Exception as e:
             log.error(f"Error parsing outputs: {e}")
+
+    # --------------------------------------------------------------------
+    #           Create data line for database
+    # --------------------------------------------------------------------            
+
+    def data_line(self)->dict:
+        _data_line = {}
+        _data_line['shot_number'] = self.shot_number
+
+        # ----------------------------------
+        #           Actuators
+        # ----------------------------------
+        for address, actuator in self.actuators.items():
+            for motor in actuator.get("motors", []):
+                _data_line[motor.get("name")] = motor.get("position")
+
+        # ----------------------------------
+        #           Diagnostics
+        # ----------------------------------
+        for address, diagnostic in self.diagnostics.items():
+            diag_name = diagnostic['name']
+            for variable_name, value in diagnostic.items():
+                if type(value) == float:
+                    measurement_name = diag_name + ":" + variable_name
+                    _data_line[measurement_name] = value
+
+        return _data_line
+
+
 
