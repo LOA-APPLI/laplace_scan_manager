@@ -110,6 +110,7 @@ class Shot:
         Check if all shot numbers match.
         Returns (shot number, True) if consistent, (shot number from master, False) if mismatched.
         """
+        log.info(f'Shot numbers: {shot_numbers}')
         if not shot_numbers:
             return None
 
@@ -183,24 +184,25 @@ class Shot:
 
     def data_line(self)->dict:
         _data_line = {}
-        _data_line['shot_number'] = self.shot_number
+        shot_num  = self.shot_number[0]
+        if shot_num > 0:
+            _data_line['shot_number'] = shot_num
+            # ----------------------------------
+            #           Actuators
+            # ----------------------------------
+            for actuator in self.actuators.values():
+                for motor in actuator.get("motors", []):
+                    _data_line[motor.get("name")] = motor.get("position")
 
-        # ----------------------------------
-        #           Actuators
-        # ----------------------------------
-        for address, actuator in self.actuators.items():
-            for motor in actuator.get("motors", []):
-                _data_line[motor.get("name")] = motor.get("position")
-
-        # ----------------------------------
-        #           Diagnostics
-        # ----------------------------------
-        for address, diagnostic in self.diagnostics.items():
-            diag_name = diagnostic['name']
-            for variable_name, value in diagnostic.items():
-                if type(value) == float:
-                    measurement_name = diag_name + ":" + variable_name
-                    _data_line[measurement_name] = value
+            # ----------------------------------
+            #           Diagnostics
+            # ----------------------------------
+            for diagnostic in self.diagnostics.values():
+                diag_name = diagnostic['name']
+                for variable_name, value in diagnostic.items():
+                    if type(value) == float:
+                        measurement_name = diag_name + ":" + variable_name
+                        _data_line[measurement_name] = value
 
         return _data_line
 

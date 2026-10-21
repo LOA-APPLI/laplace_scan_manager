@@ -7,13 +7,15 @@ from .graphs import GraphMaker
 from PyQt6.QtGui import QIcon
 import pathlib
 import qdarkstyle
+
+import pandas as pd 
 from laplace_log import log
 
 class PlotWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-
+        self.graphs = []
         self.set_up()
 
     def set_up(self):
@@ -33,16 +35,17 @@ class PlotWindow(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
-        panel_layout = QVBoxLayout(central_widget)
+        self.panel_layout = QVBoxLayout(central_widget)
 
-    def add_plot(self, plotType: str, axes: tuple):
+    def add_plot(self, plotType: str, axes: dict, plot_title: str="Plot title"):
         self.setVisible(True)
-        self.plot_type = plotType
-        if plotType == 'x-y':
-            self.variables = axes[0:1]
-        else : 
-            pass
         log.info(f'Plot type: {plotType}, axes: {axes}')
-
-
+        graph = GraphMaker.create(plot_type=plotType, axes=axes, title=plot_title)
+        self.panel_layout.addWidget(graph.graph)
+        self.graphs.append(graph)
+        self.activateWindow()
         
+    def update_plots(self, data:pd.DataFrame):
+        for graph in self.graphs:
+            graph.update(data)
+

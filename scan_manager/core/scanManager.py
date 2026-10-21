@@ -96,7 +96,6 @@ class ScanManager(QObject):
 
     def _scan_received(self, data: dict)->None:
         self.experimental_data.add_shot(master_raw_data=data)
-        log.info(f'Experimental data frame: {self.experimental_data.dataframe}')
         self.on_scan_DataFrame.emit(self.experimental_data.dataframe)
         
 
