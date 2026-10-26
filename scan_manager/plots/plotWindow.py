@@ -59,18 +59,11 @@ class PlotWindow(QMainWindow):
     def destroy_graph(self) -> None:
         index = self.target_graph.currentIndex()
         graph = self.graphs.pop(index)
-
-        # Remove its widget from the layout
         self.graph_layout.removeWidget(graph.graph)
-
-        # Schedule the widget for deletion
         graph.graph.deleteLater()
-
-        # Remove its entry from the selection box
         self.target_graph.removeItem(index)
 
-
-             
+           
     def add_plot(self, plotType: str, axes: dict, plot_title: str="Plot title"):
         self.setVisible(True)
         log.info(f'Plot type: {plotType}, axes: {axes}')
@@ -82,5 +75,5 @@ class PlotWindow(QMainWindow):
         
     def update_plots(self, data:pd.DataFrame):
         for graph in self.graphs:
-            graph.update(data)
+            graph.update(data) 
 

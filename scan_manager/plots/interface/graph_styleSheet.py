@@ -40,8 +40,8 @@ class Dark_StyleSheet():
     """
 
     def set_dark_mode(self):
-        self.graph.setFixedWidth(500)
-        self.graph.setFixedHeight(200)
+        self.graph.setFixedWidth(650)
+        self.graph.setFixedHeight(300)
         self.plot.showGrid(x=True, y=True, alpha=0.2)
         self.graph.setBackground(anthracite)
         self.plot.setContentsMargins(10, 10, 20, 10)
