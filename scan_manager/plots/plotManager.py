@@ -64,7 +64,7 @@ class PlotManager(QMainWindow):
         self.graph_name = QLineEdit('Title')
         self.graph_name.setFixedWidth(ADDRESS_WIDTH)
 
-        self.plot_type_menu.addItems(['x-y', 'multi x-y', 'xyz'])
+        self.plot_type_menu.addItems(['XY', 'XYZ'])
         x_axis_label = QLabel('x-axis')
         self.x_axis_box = QComboBox()
         self.x_axis_box.setFixedWidth(ADDRESS_WIDTH)

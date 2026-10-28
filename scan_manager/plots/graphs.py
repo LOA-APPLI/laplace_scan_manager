@@ -80,10 +80,7 @@ class Multi_XY(Graph, Dark_StyleSheet):
                     symbolBrush=pg.mkBrush(colour),
                 )
                 self.curves[key] = item
-            # if item is None:
-            #     pen = pg.mkPen(pg.intColor(len(self.curves), hues=9), width=2)
-            #     item = self.plot.plot(pen=pen, symbol='o')
-            #     self.curves[key] = item
+
             item.setData(sub[x].to_numpy(), sub[y].to_numpy())
 
             name = ", ".join(f"{group_by[i]}={label[group_by[i]]:g}" for i in varying)
@@ -130,8 +127,8 @@ class XYGraph(Graph, Dark_StyleSheet):
         
 class GraphMaker:
     _plot_types = {
-        'x-y': XYGraph,
-        'multi x-y': Multi_XY}
+        'XY': Multi_XY, 
+        'XYZ': None}
 
     @classmethod
     def create(cls, plot_type, title, axes, labels: Optional[dict] = None) -> Graph:

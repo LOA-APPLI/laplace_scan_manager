@@ -3,8 +3,6 @@ import pandas as pd
 from laplace_log import log
 
 
-
-
 class ExperimentalData:
 
     def __init__(self):

@@ -123,12 +123,10 @@ class ScanManager(QObject):
 
     def configure_diagnostics(self) -> None:
         '''
-        Configure actuators .
-        Configures the actuators on the interface from list of available actuators in Master
+        Configure diagnostics .
+        Configures the diagnostics on the interface from list of available diagnostics in Master
         Signal comes from server controller 
-        '''
-
-        
+        '''      
         self.server_controller.set_diagnostics_dict_received.connect(
             self.on_diagnostics_dict_received
         ) 
