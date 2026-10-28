@@ -7,6 +7,7 @@ from abc import abstractmethod
 import pandas as pd
 from laplace_log import log
 from typing import Optional
+from .interface.colours import curve_colours, anthracite, silver
 
 class Graph(QWidget):
     def __init__(self, title: str, axes: dict, labels: Optional[dict] = None):
@@ -42,7 +43,10 @@ class Multi_XY(Graph, Dark_StyleSheet):
         self.set_dark_mode(); self.set_axes(); self.set_labels()
         self.axes = {k: axes[k] for k in ['x', 'y']}
 
-        self.legend = self.plot.addLegend()
+        self.legend = self.plot.addLegend(offset=(10, 10))
+        self.legend.setBrush(pg.mkBrush(anthracite + 'cc'))   # semi-transparent dark background
+        self.legend.setLabelTextColor(silver)
+        self.plot.showGrid(x=True, y=True, alpha=0.15)  
         self.curves = {}        # key -> PlotDataItem
         self.names = {}         # key -> currently displayed name
 
@@ -67,9 +71,19 @@ class Multi_XY(Graph, Dark_StyleSheet):
         for key, label, sub in curves:
             item = self.curves.get(key)
             if item is None:
-                pen = pg.mkPen(pg.intColor(len(self.curves), hues=9), width=2)
-                item = self.plot.plot(pen=pen, symbol='o')
+                colour = curve_colours[len(self.curves) % len(curve_colours)]
+                item = self.plot.plot(
+                    pen=pg.mkPen(colour, width=2),
+                    symbol='o',
+                    symbolSize=7,
+                    symbolPen=pg.mkPen(anthracite, width=1),   # thin dark outline
+                    symbolBrush=pg.mkBrush(colour),
+                )
                 self.curves[key] = item
+            # if item is None:
+            #     pen = pg.mkPen(pg.intColor(len(self.curves), hues=9), width=2)
+            #     item = self.plot.plot(pen=pen, symbol='o')
+            #     self.curves[key] = item
             item.setData(sub[x].to_numpy(), sub[y].to_numpy())
 
             name = ", ".join(f"{group_by[i]}={label[group_by[i]]:g}" for i in varying)
