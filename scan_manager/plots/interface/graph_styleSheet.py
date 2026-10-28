@@ -50,6 +50,7 @@ class Dark_StyleSheet():
         self.pen = pg.mkPen(color=pen_colour, width=2)
         self.curve = self.plot.plot(pen=self.pen)    
 
+
     def set_axes(self):
         self.plot.getAxis('bottom').setGrid(128)  # Grid opacity
         self.plot.getAxis('left').setGrid(128)

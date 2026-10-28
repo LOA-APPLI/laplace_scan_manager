@@ -73,8 +73,8 @@ class PlotWindow(QMainWindow):
         self.graphs.append(graph)
         self.activateWindow()
         self.target_graph.addItem(plot_title)
-        
-    def update_plots(self, data:pd.DataFrame):
+
+    def update_plots(self, data, actuators):
         for graph in self.graphs:
-            graph.update(data) 
+            graph.update(data, actuators)
 

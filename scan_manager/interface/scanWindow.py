@@ -20,6 +20,7 @@ from ..plots.plotManager import PlotManager
 from ..utils.diagnostic_utils import format_plottable_data_dict
 
 
+
 class ScanWindow(QMainWindow):
     
     def __init__(self):
@@ -155,6 +156,7 @@ class ScanWindow(QMainWindow):
 
         # 2. Add new servers and update existing ones
         try  :
+
             for address, status in actuators_dict.items():
 
                 if address in self.actuators:
@@ -166,6 +168,9 @@ class ScanWindow(QMainWindow):
                     self.actuators_panel.add_actuator_widgets_from_status(
                         address, status
                     )
+                    for motor in status['motors']:
+                        log.info(f'Motor: {motor['name']}')
+
         except Exception as e :
             log.error(f'Could not update actuator GUI, error {e} occurred')
 
@@ -177,8 +182,6 @@ class ScanWindow(QMainWindow):
 
             self.diagnostics_panel.update_diagnostic_unavailable(address)
 
-
-        # 2. Add new servers and update existing ones
         try  :
             for address, status in diagnostics_dict.items():
 
@@ -190,6 +193,11 @@ class ScanWindow(QMainWindow):
                     self.diagnostics_panel.add_diagnostic_widgets_from_status(
                         address, status
                     )
+                    diag_name = status['name']
+                    for plottable in status['plottables_list']:
+                        log.info(f'diag name: {diag_name+":"+plottable}')
+
+
         except Exception as e :
             log.error(f'Could not update diag GUI, error {e} occurred')
 

@@ -24,7 +24,10 @@ class ScanManager(QObject):
         super().__init__()
 
         self.server_controller = ServerController()
+        self.actuators = []
+        self.diagnostics = []
         self.experimental_data = ExperimentalData()
+
   
     def server_launch(self, server_state: bool) -> None:
         '''
@@ -132,8 +135,10 @@ class ScanManager(QObject):
    
 
     def start_scan(self, scan_settings: dict) -> None:
+
         log.debug(f'Starting scan with settings: {scan_settings}')
         self.serv.set_data(scan_settings)
+        self.experimental_data.clear()
 
     def stop_scan(self):
         pass
