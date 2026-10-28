@@ -110,20 +110,6 @@ class Multi_XY(Graph, Dark_StyleSheet):
             curves.append((key, label, sub))
         return curves
 
-class XYGraph(Graph, Dark_StyleSheet):
-    def __init__(self, axes: dict, title, labels: Optional[dict] = None):
-        super().__init__(axes=axes, title=title, labels=labels)
-        self.set_dark_mode()
-        self.set_axes() # From Dark_StyleSheet
-        self.set_labels() # From Dark_StyleSheet
-        self.axes = {k: axes[k] for k in ['x', 'y']}
-        self.data = {}
-
-    def update(self, data: pd.DataFrame, actuators: list[str]= []):
-        x_values = data[self.axes['x']].tolist()
-        y_values = data[self.axes['y']].tolist()   
-        log.info(f'x-values: {x_values}, y-values: {y_values}')    
-        self.curve.setData(list(x_values), list(y_values))
         
 class GraphMaker:
     _plot_types = {
