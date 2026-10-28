@@ -42,31 +42,39 @@ class Multi_XY(Graph, Dark_StyleSheet):
         self.set_dark_mode(); self.set_axes(); self.set_labels()
         self.axes = {k: axes[k] for k in ['x', 'y']}
 
-        self.curves = {}                      # key -> PlotDataItem (a cache)
-        self.plot.addLegend()
+        self.legend = self.plot.addLegend()
+        self.curves = {}        # key -> PlotDataItem
+        self.names = {}         # key -> currently displayed name
+
+    def _set_legend_name(self, key, item, name):
+        if self.names.get(key) == name:
+            return
+        if self.names.get(key):             # already in legend: remove, then re-add
+            self.legend.removeItem(item)
+        if name:
+            self.legend.addItem(item, name)
+        self.names[key] = name
+
 
     def update(self, data, actuators):
-            x, y = self.axes['x'], self.axes['y']
+        x, y = self.axes['x'], self.axes['y']
+        group_by = [a for a in actuators if a in data.columns and a not in (x, y)]
+        curves = self.split_into_curves(data, group_by, self.tolerances)
 
-            group_by = [a for a in actuators
-                        if a in data.columns and a not in (x, y)]
+        varying = [i for i in range(len(group_by))
+                if len({k[i] for k, _, _ in curves}) > 1]
 
-            log.info(f'group_by={group_by}, columns={list(data.columns)}')
-            curves = self.split_into_curves(data, group_by, self.tolerances)
-            log.info(f'{len(curves)} curve(s)')
+        for key, label, sub in curves:
+            item = self.curves.get(key)
+            if item is None:
+                pen = pg.mkPen(pg.intColor(len(self.curves), hues=9), width=2)
+                item = self.plot.plot(pen=pen, symbol='o')
+                self.curves[key] = item
+            item.setData(sub[x].to_numpy(), sub[y].to_numpy())
 
-            # only put actuators that actually differ between curves in the legend
-            varying = [i for i in range(len(group_by))
-                    if len({k[i] for k, _, _ in curves}) > 1]
+            name = ", ".join(f"{group_by[i]}={label[group_by[i]]:g}" for i in varying)
+            self._set_legend_name(key, item, name)
 
-            for key, label, sub in curves:
-                item = self.curves.get(key)
-                if item is None:
-                    name = ", ".join(f"{group_by[i]}={label[group_by[i]]:g}" for i in varying)
-                    pen = pg.mkPen(pg.intColor(len(self.curves), hues=9), width=2)
-                    item = self.plot.plot(pen=pen, symbol='o', name=name or None)
-                    self.curves[key] = item
-                item.setData(sub[x].to_numpy(), sub[y].to_numpy())
 
 
     def split_into_curves(self, df: pd.DataFrame, group_by: list[str],
