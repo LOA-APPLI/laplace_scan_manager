@@ -117,18 +117,30 @@ class PlotManager(QMainWindow):
     def actions(self):
         self.add_plot_btn.clicked.connect(self.add_plot)
 
-    def add_plot(self):
-        axes = ['x', 'y', 'z']
-        variables = dict(zip(axes, [self.x_axis_box, self.y_axis_box, self.z_axis_box]))
-        names = dict(zip(axes, [self.x_axis_name, self.y_axis_name, self.z_axis_name]))
-        for axis, name in names.items():
-            if name.text() is "":
-                names[axis] = variables[axis].currentText()
-            else:
-                names[axis] = name.text()
+    # def add_plot(self):
+    #     axes = ['x', 'y', 'z']
+    #     variables = dict(zip(axes, [self.x_axis_box, self.y_axis_box, self.z_axis_box]))
+    #     names = dict(zip(axes, [self.x_axis_name, self.y_axis_name, self.z_axis_name]))
+    #     for axis, name in names.items():
+    #         if name.text() is "":
+    #             names[axis] = variables[axis].currentText()
+    #         else:
+    #             names[axis] = name.text()
 
+    #     self.plot_window.add_plot(plotType = self.plot_type_menu.currentText(),
+    #                               axes = names, plot_title=self.graph_name.text())
+
+    def add_plot(self):
+        axes = {'x':str(self.x_axis_box.currentText()), 
+                'y':str(self.y_axis_box.currentText()), 
+                'z':str(self.z_axis_box.currentText())
+        }
+        labels = {'x': self.x_axis_name.text(), 
+                  'y': self.y_axis_name.text(),
+                  'z': self.z_axis_name.text()
+                  }
         self.plot_window.add_plot(plotType = self.plot_type_menu.currentText(),
-                                  axes = names, plot_title=self.graph_name.text())
+                                  axes = axes, labels=labels, plot_title=self.graph_name.text())
 
     def update_interface(self, actuators: dict, diagnostics: dict):
 

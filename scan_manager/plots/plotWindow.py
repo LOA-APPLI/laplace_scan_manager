@@ -10,6 +10,7 @@ from .graphs import GraphMaker
 from PyQt6.QtGui import QIcon
 import pathlib
 import qdarkstyle
+from typing import Optional
 
 import pandas as pd 
 from laplace_log import log
@@ -64,10 +65,10 @@ class PlotWindow(QMainWindow):
         self.target_graph.removeItem(index)
 
            
-    def add_plot(self, plotType: str, axes: dict, plot_title: str="Plot title"):
+    def add_plot(self, plotType: str, axes: dict, plot_title: str="Plot title", labels: Optional[dict] = None):
         self.setVisible(True)
         log.info(f'Plot type: {plotType}, axes: {axes}')
-        graph = GraphMaker.create(plot_type=plotType, axes=axes, title=plot_title)
+        graph = GraphMaker.create(plot_type=plotType, axes=axes, title=plot_title, labels=labels)
         self.graph_layout.addWidget(graph.graph)
         self.graphs.append(graph)
         self.activateWindow()
