@@ -20,7 +20,7 @@ class ActuatorControlWidget(QWidget):
     Define the actuator control line. 
     '''
 
-    def __init__(self, address: str, name: str, index: int, motor_count: int):
+    def __init__(self, address: str, name: str, index: int, motor_count: int=1):
         '''
             Args:
                 definition: (dict)

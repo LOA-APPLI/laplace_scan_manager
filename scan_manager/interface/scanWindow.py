@@ -150,9 +150,10 @@ class ScanWindow(QMainWindow):
 
         # 1. Find motor servers that used to exist but are no longer available
         removed_addresses = set(self.actuators) - set(actuators_dict)
-
+    
         for address in removed_addresses:
             self.actuators_panel.update_actuators_unavailable(address)
+            pass
 
         # 2. Add new servers and update existing ones
         try  :
@@ -161,15 +162,15 @@ class ScanWindow(QMainWindow):
 
                 if address in self.actuators:
                     self.actuators_panel.update_actuator_widget(address, status)
+                    
 
                 else:
                     self.actuators[address] = status
-                    log.debug(f'Motor status at {address} in scan window: {status}')
+                    log.info(f'Motor status at {address} in scan window: {status}')
                     self.actuators_panel.add_actuator_widgets_from_status(
                         address, status
                     )
-                    for motor in status['motors']:
-                        log.info(f'Motor: {motor['name']}')
+
 
         except Exception as e :
             log.error(f'Could not update actuator GUI, error {e} occurred')
@@ -177,7 +178,7 @@ class ScanWindow(QMainWindow):
     def update_diagnostics(self, diagnostics_dict: dict) -> None:
 
         removed_addresses = set(self.diagnostics) - set(diagnostics_dict)
-
+   
         for address in removed_addresses:
 
             self.diagnostics_panel.update_diagnostic_unavailable(address)
