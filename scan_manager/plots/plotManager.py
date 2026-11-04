@@ -130,14 +130,13 @@ class PlotManager(QMainWindow):
                                   axes = axes, labels=labels, plot_title=self.graph_name.text())
 
     def update_interface(self, actuators: dict, diagnostics: dict):
-
         for status in actuators.values() :
-            pass
-            # for motor in status['motors']:
-            #     name = motor['name']
-            #     if name not in self.available_actuators:
-            #         self.new_device = True
-            #         self.available_actuators.append(name)            
+
+            for motor in status['motors'].values():
+                name = motor['name']
+                if name not in self.available_actuators:
+                    self.new_device = True
+                    self.available_actuators.append(name)            
 
         for status in diagnostics.values():
             name = status['name']

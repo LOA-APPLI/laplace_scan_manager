@@ -78,3 +78,6 @@ class PlotWindow(QMainWindow):
         for graph in self.graphs:
             graph.update(data, actuators)
 
+
+
+

@@ -82,8 +82,6 @@ class ScanWindow(QMainWindow):
 
         bottom_layout.addStretch()
 
-
-
         # Plot Window
         self.open_plots = QPushButton("Plot Manager")
         self.open_plots.setFixedWidth(250)
@@ -224,14 +222,10 @@ class ScanWindow(QMainWindow):
             "End criterium",
             "Maximum iteration reached."
         )
-    
-
-
-
-    
+        
     def set_loop_state(self, scanning: bool):
         if scanning:
-            self.status_label.setText("🟡 Scannng...")
+            self.status_label.setText("🟡 Scannig...")
             self.status_label.setStyleSheet("color: orange; font-weight: bold;")
             self.start_button.setEnabled(False)      # lock the start button
             self.execution_panel.set_locked(True)    # lock the ExecutionPanel
@@ -243,14 +237,16 @@ class ScanWindow(QMainWindow):
             self.execution_panel.set_locked(False)  # unlock the ExecutionPanel
 
 
-
     def closeEvent(self, event) -> None:
         '''
         Function called when the window is closing.
         
-        Close the server stored in 'OptManager'.
+        Close the server stored in 'ScanManager'.
         '''
         if self.execution_panel.is_online_enabled():
             self.scan_manager.server_launch(server_state=False)
-        
+        self.plot_manager.close()
+        self.plot_manager.plot_window.close()
+       
         event.accept()
+

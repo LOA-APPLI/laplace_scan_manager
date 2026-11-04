@@ -38,7 +38,7 @@ class ActuatorsPanel(QGroupBox):
         self.list_widget.setItemWidget(item, list_header)
 
     def update_actuator_widget(self, address: str, status: dict) -> None:
-        log.info(f'updating actuator widget: {address}, status: {status}')
+
         for motor in status['motors'].values():
                     name = motor['name']
                     position = motor['position']
@@ -66,8 +66,7 @@ class ActuatorsPanel(QGroupBox):
                     
 
     def add_actuator_widgets_from_status(self, address: str, status: dict) -> None:
-        #motors = status['motors']
-        #motor_count = len(motors)
+
         log.info(f'actuator status to add to interface: {status['motors']}')
 
         for index, motor in status['motors'].items():

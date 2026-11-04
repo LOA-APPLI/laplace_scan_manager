@@ -32,11 +32,11 @@ class Shot:
         Factory method: construct Shot from raw Master output.
         Returns None if parsing fails.
         """
-        # Step 1: Extract all shot numbers from devices
+        # Extract all shot numbers from devices
         device_shot_numbers = cls._collect_device_shot_numbers(master_data)
         log.debug(f'device_shot_numbers: {device_shot_numbers}')
 
-        # Step 2: Verify congruence across devices
+        # Verify congruence across devices
         try:
             unified_shot_number = cls._verify_shot_congruence(device_shot_numbers)
         except Exception as e:
@@ -53,7 +53,7 @@ class Shot:
             log.error("Cannot determine shot number from master_data")
             return None
         
-        # Step 3: Create instance and populate
+        # Create instance and populate
         instance = cls(unified_shot_number)
         instance._parse_payload(master_data)
         instance._raw_master_data = master_data
@@ -126,8 +126,6 @@ class Shot:
         log.info(f'Shot number congruence test passed')
         return (shot_numbers['_master'], True)
 
-
-
     
     # =========================================================================
     #                       PAYLOAD PARSING
@@ -191,17 +189,21 @@ class Shot:
             #           Actuators
             # ----------------------------------
             for actuator in self.actuators.values():
-                for motor in actuator.get("motors", []):
+                log.info(f'Actuator: {actuator}')
+                for motor in actuator.get("motors", {}).values():
                     _data_line[motor.get("name")] = motor.get("position")
 
             # ----------------------------------
             #           Diagnostics
             # ----------------------------------
             for diagnostic in self.diagnostics.values():
+                log.info(f'Diagnostic: {diagnostic}')
                 diag_name = diagnostic['name']
-                for variable_name, value in diagnostic.items():
+                for plottable_name, value in diagnostic['plottables'].items():
+                #
+                # for variable_name, value in diagnostic.items():
                     if type(value) == float:
-                        measurement_name = diag_name + ":" + variable_name
+                        measurement_name = diag_name + ":" + plottable_name
                         _data_line[measurement_name] = value
 
         return _data_line
