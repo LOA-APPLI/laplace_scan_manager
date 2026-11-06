@@ -41,10 +41,7 @@ class ScanWindow(QMainWindow):
         self.plot_timer.timeout.connect(self.update_plot_manager)
         self.plot_timer.start(1000)
 
-        self.last_master_update = datetime.now()
-        self.master_alive = QTimer()
-        self.master_alive.timeout.connect(self.is_master_offline)
-        self.master_alive.start(5000)
+
 
     def set_up(self) -> None:
         '''
@@ -111,6 +108,9 @@ class ScanWindow(QMainWindow):
         self.execution_panel.server_state_changed.connect(
             self.scan_manager.server_launch
         )
+        self.execution_panel.server_state_changed.connect(
+            self.start_master_timer
+        )
 
         # transmit the server address from the server to the ExecutionPanel
         self.scan_manager.on_server_address.connect(
@@ -141,6 +141,15 @@ class ScanWindow(QMainWindow):
             self.on_new_dataframe
         )
 
+    def start_master_timer(self, state: bool):
+        if state:
+            self.last_master_update = datetime.now()
+            self.master_alive = QTimer()
+            self.master_alive.timeout.connect(self.is_master_offline)
+            self.master_alive.start(5000)
+        else:
+            self.master_alive.stop()
+        
     def on_new_dataframe(self, df: pd.DataFrame):
         self.plot_manager.update_data(df)
 
@@ -208,6 +217,8 @@ class ScanWindow(QMainWindow):
         delta = (datetime.now()- self.last_master_update).seconds
 
         if delta > MASTER_OFFLINE:
+            self.actuators = {}
+            self.diagnostics = {}
             self.actuators_panel.remove_all()
             self.diagnostics_panel.remove_all()
             log.info(f'Master is offline.')

@@ -65,9 +65,15 @@ class ActuatorsPanel(QGroupBox):
             widget.update_status_available(False)
 
     def remove_all(self)-> None:
-        for actuator_item_dict in self.actuator_widget_items.values():
-            for actuator_item in actuator_item_dict.values():
-                self.list_widget.removeItemWidget(actuator_item)
+        if self.actuator_widgets:
+            for i in range(self.list_widget.count()):
+                list_item = self.list_widget.item(0)
+                self.list_widget.removeItemWidget(list_item)
+                self.list_widget.takeItem(0)
+
+            for actuator_widget_dict in self.actuator_widgets.values():
+                for actuator_widget in actuator_widget_dict.values():
+                    del actuator_widget
 
         self.actuator_widget_items = {}
         self.actuator_widgets = {}    

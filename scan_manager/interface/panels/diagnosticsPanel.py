@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (
     QApplication
 )
 from laplace_log import log
+import time
 
 # project
 
@@ -60,10 +61,18 @@ class DiagnosticsPanel(QGroupBox):
         diagnostic_widget.update_status_available(False)
 
     def remove_all(self)->None:
-        for item in self.diagnostic_widget_items.values():
-            self.list_widget.removeItemWidget(item)
-        self.diagnostic_widget_items = {}
-        self.diagnostic_widgets = {}
+        if self.diagnostic_widgets:
+            for i in range(self.list_widget.count()):
+                list_item = self.list_widget.item(0)
+                self.list_widget.removeItemWidget(list_item)
+                self.list_widget.takeItem(0)
+
+                
+            for diagnostic_widget in self.diagnostic_widgets.values():
+                    del diagnostic_widget
+
+            self.diagnostic_widget_items = {}
+            self.diagnostic_widgets = {}
 
 
     def actions(self):
