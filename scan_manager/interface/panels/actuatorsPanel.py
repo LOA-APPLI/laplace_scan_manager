@@ -11,7 +11,6 @@ from PyQt6.QtWidgets import (
 from laplace_log import log
 
 # project
-from ...utils.config_helper import get_from_config, set_in_config
 from ..widgets.actuator_control_widget import ActuatorControlWidget
 
 
@@ -20,7 +19,8 @@ class ActuatorsPanel(QGroupBox):
     def __init__(self):        
         super().__init__("Actuators (motors, gas, etc.)")
 
-        self.actuator_widgets = dict({})
+        self.actuator_widgets = {}
+        self.actuator_widget_items = {}
         self.set_up()  # build the elements
         self.actions() # defines the panel actions
 
@@ -63,8 +63,15 @@ class ActuatorsPanel(QGroupBox):
         log.debug(f'Actuator widgets: {actuator_widgets}')
         for widget in actuator_widgets.values():
             widget.update_status_available(False)
-                    
 
+    def remove_all(self)-> None:
+        for actuator_item_dict in self.actuator_widget_items.values():
+            for actuator_item in actuator_item_dict.values():
+                self.list_widget.removeItemWidget(actuator_item)
+
+        self.actuator_widget_items = {}
+        self.actuator_widgets = {}    
+                    
     def add_actuator_widgets_from_status(self, address: str, status: dict) -> None:
 
         log.info(f'actuator status to add to interface: {status['motors']}')
@@ -80,9 +87,10 @@ class ActuatorsPanel(QGroupBox):
 
     def add_actuator_widget(self, address: str, name: str, index: int, position: float, motor_count:int = 1):
         new_widget = ActuatorControlWidget(address=address, name=name, index=index, motor_count= motor_count)
-
         self.actuator_widgets.setdefault(address, {})[name] = new_widget
+
         item = QListWidgetItem(self.list_widget)          # create a new list item
+        self.actuator_widget_items.setdefault(address, {})[name] = item
         item.setSizeHint(new_widget.sizeHint())           # set the size of the item
         self.list_widget.addItem(item)                    # add the new item in the list
         self.list_widget.setItemWidget(item, new_widget)  # assign the new widget to the item

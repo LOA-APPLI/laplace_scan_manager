@@ -1,5 +1,5 @@
 # libraries
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtCore import pyqtSignal, QObject, QTimer
 from pandas import DataFrame
 
 from laplace_server.server_lhc import ServerLHC
@@ -18,7 +18,6 @@ class ScanManager(QObject):
     on_actuators_position_update_received = pyqtSignal(dict) 
     on_diagnostics_dict_received = pyqtSignal(dict) 
     on_scan_DataFrame = pyqtSignal(DataFrame)
-
     
     def __init__(self):
         super().__init__()
@@ -27,7 +26,6 @@ class ScanManager(QObject):
         self.actuators = []
         self.diagnostics = []
         self.experimental_data = ExperimentalData()
-
   
     def server_launch(self, server_state: bool) -> None:
         '''

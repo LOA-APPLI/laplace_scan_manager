@@ -17,7 +17,8 @@ class DiagnosticsPanel(QGroupBox):
     def __init__(self):        
         super().__init__("Diagnostics")
 
-        self.diagnostic_widgets = dict({})
+        self.diagnostic_widgets = {}
+        self.diagnostic_widget_items = {}
         self.set_up()  # build the elements
         self.actions() # defines the panel actions
 
@@ -35,6 +36,7 @@ class DiagnosticsPanel(QGroupBox):
 
         self.diagnostic_widgets[address] = new_widget
         item = QListWidgetItem(self.list_widget)          # create a new list item
+        self.diagnostic_widget_items[address] = item
         item.setSizeHint(new_widget.sizeHint())           # set the size of the item
         self.list_widget.addItem(item)                    # add the new item in the list
         self.list_widget.setItemWidget(item, new_widget)  # assign the new widget to the item
@@ -56,6 +58,13 @@ class DiagnosticsPanel(QGroupBox):
     def update_diagnostic_unavailable(self, address):
         diagnostic_widget = self.diagnostic_widgets.get(address)
         diagnostic_widget.update_status_available(False)
+
+    def remove_all(self)->None:
+        for item in self.diagnostic_widget_items.values():
+            self.list_widget.removeItemWidget(item)
+        self.diagnostic_widget_items = {}
+        self.diagnostic_widgets = {}
+
 
     def actions(self):
         pass

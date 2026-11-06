@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QIcon
 import qdarkstyle
 from laplace_log import log
+from datetime import datetime
 
 # project
 from .panels import (
@@ -19,6 +20,7 @@ from ..core.scanManager import ScanManager
 from ..plots.plotManager import PlotManager
 from ..utils.diagnostic_utils import format_plottable_data_dict
 
+MASTER_OFFLINE = 5 # Value in seconds after which master is considered offline
 
 
 class ScanWindow(QMainWindow):
@@ -37,8 +39,12 @@ class ScanWindow(QMainWindow):
 
         self.plot_timer = QTimer()
         self.plot_timer.timeout.connect(self.update_plot_manager)
-        self.plot_timer.start(5000)
+        self.plot_timer.start(1000)
 
+        self.last_master_update = datetime.now()
+        self.master_alive = QTimer()
+        self.master_alive.timeout.connect(self.is_master_offline)
+        self.master_alive.start(5000)
 
     def set_up(self) -> None:
         '''
@@ -142,10 +148,8 @@ class ScanWindow(QMainWindow):
         log.debug("Plot manager clicked.")
         self.plot_manager.setVisible(not self.plot_manager.isVisible())
 
-
-
     def update_actuators(self, actuators_dict: dict) -> None:
-
+        self.last_master_update = datetime.now()
         # 1. Find motor servers that used to exist but are no longer available
         removed_addresses = set(self.actuators) - set(actuators_dict)
     
@@ -174,7 +178,7 @@ class ScanWindow(QMainWindow):
             log.error(f'Could not update actuator GUI, error {e} occurred')
 
     def update_diagnostics(self, diagnostics_dict: dict) -> None:
-
+        self.last_master_update = datetime.now()
         removed_addresses = set(self.diagnostics) - set(diagnostics_dict)
    
         for address in removed_addresses:
@@ -199,6 +203,14 @@ class ScanWindow(QMainWindow):
 
         except Exception as e :
             log.error(f'Could not update diag GUI, error {e} occurred')
+
+    def is_master_offline(self):
+        delta = (datetime.now()- self.last_master_update).seconds
+
+        if delta > MASTER_OFFLINE:
+            self.actuators_panel.remove_all()
+            self.diagnostics_panel.remove_all()
+            log.info(f'Master is offline.')
 
     def load_scan_from_actuators(self)->None:
         scan_config = self.actuators_panel.get_all_actuators_config()
