@@ -1,4 +1,4 @@
-from laser_monitoring.Data_Saver.h5_Builder import H5Builder
+from .h5_Builder import H5Builder
 from queue import Queue, Full
 import threading
 import time
@@ -80,7 +80,6 @@ class DataSaver(QObject):
                 data_point = data
         else:
             data_point = args
-
 
         # Add to buffer (non-blocking)
         try:

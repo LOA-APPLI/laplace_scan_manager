@@ -38,23 +38,24 @@ class Shot:
 
         # Verify congruence across devices
         try:
-            unified_shot_number = cls._verify_shot_congruence(device_shot_numbers)
+            unified_shot_number, congruent = cls._verify_shot_congruence(
+                device_shot_numbers
+            )
         except Exception as e:
             unified_shot_number = None
             log.error(f'Exception: {e}')
-        
-        
+
         if unified_shot_number is None:
-            log.warning(f"Shot number incongruence detected: {device_shot_numbers}")
-            # Decide: fail silently, raise, or pick first with warning
-            unified_shot_number = device_shot_numbers[0] if device_shot_numbers else None
-        
+            log.warning(f"Shot number incongruence: {device_shot_numbers}")
+            unified_shot_number = next(
+                iter(device_shot_numbers.values()), None
+            )
+
         if unified_shot_number is None:
-            log.error("Cannot determine shot number from master_data")
             return None
-        
-        # Create instance and populate
+
         instance = cls(unified_shot_number)
+
         instance._parse_payload(master_data)
         instance._raw_master_data = master_data
         
@@ -182,7 +183,7 @@ class Shot:
 
     def data_line(self)->dict:
         _data_line = {}
-        shot_num  = self.shot_number[0]
+        shot_num  = self.shot_number
         if shot_num > 0:
             _data_line['shot_number'] = shot_num
             # ----------------------------------

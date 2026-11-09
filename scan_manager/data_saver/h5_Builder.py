@@ -3,14 +3,10 @@ import numpy as np
 from threading import Lock
 import time
 from dataclasses import dataclass
+from typing import Any
 
 from .Nested_Dir import create_date_folders
 
-@dataclass
-class DeviceConfig:
-    name: str
-    graph_type: str
-    shape: tuple
 
 
 class H5Builder:
@@ -18,7 +14,7 @@ class H5Builder:
         self.lock = Lock()  # Thread safety for async operations
         self.defined_datasets = ['rolling_1d', 'static_1d', 'density_2d']
 
-    def create_file(self, file_name: str, root_path: str, devices: dict[str, DeviceConfig]):
+    def create_file(self, file_name: str, root_path: str, devices: dict[str, Any]):
         created_path = create_date_folders(root_path)
         print(f'Created path: {created_path}')
         self.file = created_path / file_name
