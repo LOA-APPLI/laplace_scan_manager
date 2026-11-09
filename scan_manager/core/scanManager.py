@@ -10,6 +10,7 @@ from laplace_log import log
 
 # project
 from ..core.data.experimentalData import ExperimentalData
+from ..data_saver.Data_Saver import DataSaver
 from ..utils.config_helper import get_from_config
 
 class ScanManager(QObject):
@@ -18,14 +19,16 @@ class ScanManager(QObject):
     on_actuators_position_update_received = pyqtSignal(dict) 
     on_diagnostics_dict_received = pyqtSignal(dict) 
     on_scan_DataFrame = pyqtSignal(DataFrame)
+
     
     def __init__(self):
         super().__init__()
-
+        self.data_flush_period = 20 # Flush period in seconds
         self.server_controller = ServerController()
         self.actuators = []
         self.diagnostics = []
         self.experimental_data = ExperimentalData()
+        self.data_saver = DataSaver(flush_interval=self.data_flush_period)
   
     def server_launch(self, server_state: bool) -> None:
         '''

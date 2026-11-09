@@ -1,0 +1,131 @@
+import h5py
+import numpy as np
+from threading import Lock
+import time
+from dataclasses import dataclass
+
+from .Nested_Dir import create_date_folders
+
+@dataclass
+class DeviceConfig:
+    name: str
+    graph_type: str
+    shape: tuple
+
+
+class H5Builder:
+    def __init__(self):
+        self.lock = Lock()  # Thread safety for async operations
+        self.defined_datasets = ['rolling_1d', 'static_1d', 'density_2d']
+
+    def create_file(self, file_name: str, root_path: str, devices: dict[str, DeviceConfig]):
+        created_path = create_date_folders(root_path)
+        print(f'Created path: {created_path}')
+        self.file = created_path / file_name
+
+        """Initialize datasets for each device"""
+        with h5py.File(self.file, 'a') as f:
+            for device_id, device in devices.items():
+                dim_y = device.shape[0]
+                try:
+                    dim_x = device.shape[1]
+                except:
+                    dim_x = 0
+
+                if device.graph_type in self.defined_datasets:
+                    dataset_name = f'devices/{device_id}/data'
+                    timestamp_dataset_name = f'devices/{device_id}/timestamps'
+
+                    if device.graph_type == 'density_2d':
+                        _format = {
+                            "name": dataset_name,
+                            "shape": (0, dim_y, dim_x),  # Start with 0 images
+                            "maxshape": (None, dim_y, dim_x),  # Allow unlimited images
+                            "dtype": 'i2',
+                            "chunks": (1, dim_y, dim_x),  # One image per chunk
+                            "compression": 'gzip',
+                            "compression_opts": 4
+                        }
+                    else :
+                        _format = {
+                            "name": dataset_name,
+                            "shape": (dim_x, dim_y),
+                            "maxshape": (None, dim_y),
+                            "dtype": 'f4',
+                            "chunks": (1000, dim_y),
+                            "compression": 'gzip',
+                            "compression_opts": 4
+                        }
+
+
+                    if dataset_name not in f:
+                        # Create dataset for data using _format dictionary
+                        f.create_dataset(
+                            name=_format["name"],
+                            shape=_format["shape"],  # ← Use _format
+                            maxshape=_format["maxshape"],
+                            dtype=_format["dtype"],  # ← Use _format
+                            chunks=_format["chunks"],  # ← Use _format
+                            compression=_format["compression"],
+                            compression_opts=_format["compression_opts"]
+                        )
+
+                        # Store metadata as attributes
+                        f[dataset_name].attrs['device_name'] = device.name
+                        f[dataset_name].attrs['graph_type'] = device.graph_type
+
+                        # Create dataset for associated timestamp
+                        f.create_dataset(
+                            name=timestamp_dataset_name,
+                            shape=(0, 1),
+                            maxshape=(None, 1),
+                            dtype='f8',
+                            chunks=(1000, 1),
+                            compression='gzip',
+                            compression_opts= 4
+                        )
+
+                        # Store metadata as attributes
+                        f[dataset_name].attrs['device_name'] = device.name
+                        f[dataset_name].attrs['graph_type'] = device.graph_type
+
+            print(f"Success! Created datasets for {len(devices)} devices")
+
+    def append_batch(self, device_id: str, data: np.ndarray, timestamps: np.ndarray):
+        """Append multiple (timestamp, value) pairs at once
+
+        """
+        t_0 = time.time()
+
+        with self.lock:
+            with h5py.File(self.file, 'a') as f:
+                dataset_name = f'devices/{device_id}/data'
+                timestamp_dataset_name = f'devices/{device_id}/timestamps'
+                print(f'Dataset name: {dataset_name}')
+                
+                if dataset_name not in f:
+                    raise ValueError(f"Dataset {dataset_name} not found")
+                
+                dataset = f[dataset_name]
+                timestamp_dataset = f[timestamp_dataset_name]
+                graph_type = dataset.attrs.get('graph_type')
+
+                current_size = dataset.shape[0]
+                if graph_type == 'density_2d':
+                    # Resize dataset and add new image
+                    dataset.resize((dataset.shape[0] + 1, *dataset.shape[1:]))
+                    # Add image to the last position
+                    dataset[-1] = data
+                else:
+                    # Resize and append
+                    dataset.resize(current_size + 1, axis=0)
+                    dataset[current_size:] = data
+
+                current_size = timestamp_dataset.shape[0]
+                timestamp_dataset.resize(current_size + 1, axis=0)
+                timestamp_dataset[current_size:] = timestamps
+
+
+        print(f'saving batch took {time.time()-t_0}s')
+    
+
