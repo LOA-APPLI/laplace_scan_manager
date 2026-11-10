@@ -34,7 +34,7 @@ import pandas as pd
 from urllib.parse import quote
 from ..core.data.shot import Shot
 
-
+# Companion to the class to be found in hdf5_utils
 class HDF5Database:
 
     def __init__(self, filename: str = "database.h5"):
@@ -60,6 +60,10 @@ class HDF5Database:
 
         dataset = group.create_dataset(safe_name, data=value)
         dataset.attrs["original_name"] = original_name
+
+    def save_shots(self, shot_dict: dict[Shot]):
+        for shot in shot_dict.values():
+            self.save_shot(shot=shot)
 
     def save_shot(self, shot: Shot) -> None:
         """Save one Shot object in the hierarchical structure."""

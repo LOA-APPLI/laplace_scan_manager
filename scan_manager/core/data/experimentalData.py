@@ -1,6 +1,7 @@
 
 from .shot import Shot
 from ...data_saver.Data_Classes import HDF5Database
+from ...data_saver.Data_Scheduler import DataSaveScheduler
 
 import pandas as pd
 from laplace_log import log
@@ -12,6 +13,7 @@ class ExperimentalData:
         self.shots = {}
         self.dataframe = pd.DataFrame()
         self.database = HDF5Database("database.h5")
+        self.scheduler = DataSaveScheduler(self.database.save_shots)
 
     def add_shot(self, master_raw_data: dict) -> None:
 

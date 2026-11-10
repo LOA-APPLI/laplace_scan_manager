@@ -78,9 +78,9 @@ class ScanManager(QObject):
                 self.server_controller.on_set_diagnostics
             )
 
-            self.serv.set_on_update_actuator_positions(
-                self.server_controller.on_new_actuator_pos_received
-            )
+            # self.serv.set_on_update_actuator_positions(
+            #     self.server_controller.on_new_actuator_pos_received
+            # )
 
             self.server_controller.scan_received.connect(
                 self._scan_received
@@ -114,13 +114,7 @@ class ScanManager(QObject):
         self.server_controller.set_actuators_dict_received.connect(
             self.on_actuators_dict_received
         ) 
-        
-        try: 
-            self.server_controller.actuators_pos_update_received.connect(
-                    self.on_actuators_position_update_received
-                )
-        except Exception as e:
-            log.error(f'Exception {e} occurred on registering position update')
+
 
     def configure_diagnostics(self) -> None:
         '''
